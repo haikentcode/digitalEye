@@ -1,0 +1,12 @@
+{% extends 'home/main.html' %}
+
+
+{% block content %}
+     {% for attendance in attendanceList %}
+       {{attendance.date}}
+       {% for student in attendance.students.all %}
+         {{student}}
+         <br/>
+       {% endfor %}
+     {% endfor %}
+{% endblock %}
