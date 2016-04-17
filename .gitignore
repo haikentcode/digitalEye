@@ -1,6 +1,8 @@
 *~
 *.swp
 *.pyc
-digitalEye.beta
+digitalEye.beta/olddata
+digitalEye.beta/data
+digitalEye.beta/sampleImage
 media
 
