@@ -1,15 +1,24 @@
 from django.shortcuts import render,HttpResponse,render_to_response,HttpResponseRedirect
 from django.contrib import auth
-from home.models import  Teacher , Attendance , Student
+from home.models import  Teacher , Attendance , Student ,Log ,ImageData
 
 from digitalEye import Objects as obj
 from digitalEye import Recog as rec
 import sys
 import cv2
 import os
+import datetime
+import time
+__location__ = os.path.realpath(
+    os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
+def cpath(fpath):
+    return os.path.join(__location__, fpath)
 def onTeacher(request):
       return Teacher.objects.get(emailId=request.session.get('teacher'))
+
+def getStudent(rollNumber):
+    return Student.objects.get(rollNumber=rollNumber)
 
 def index(request):
     if request.session.get('teacher',None):
@@ -52,17 +61,17 @@ def help(request):
 
 
 
-def history(request):
+def history(request,year=0,month=0,day=0):
+
     teacher=onTeacher(request)
     attendanceList=Attendance.objects.filter(teacher=teacher)
-    print attendanceList[0].teacher
     return render(request,'home/history.html',{'attendanceList':attendanceList,'user':teacher})
 
 
 def startcapturing(request):
-      #cap=cv2.VideoCapture("http://10.42.0.41:8080/video")
-      #print cap
-      hk=0
+      path=cpath("/home/haikent/Desktop/fyp/digitalEye/AASUI/media/media/dic.mp4")
+      print path
+      cap=cv2.VideoCapture(0) #"http://10.42.0.41:8080/video"
       course=request.POST.get('course')
       branch=request.POST.get('branch')
       batch=request.POST.get('batch')
@@ -75,6 +84,7 @@ def startcapturing(request):
               lables.append(int(student.rollNumber))
               img='media/%s' % image
               img=cv2.imread(img)
+              img=cv2.resize(img,(600,600),interpolation=cv2.INTER_AREA)
               img=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
               images.append(img)
       print images
@@ -86,16 +96,58 @@ def startcapturing(request):
       recog.train(images,lables,0)
       recog1.train(images,lables,1)
       recog2.train(images,lables,2)
-
-
-      """
-      while(hk<=1000):
-         hk+=1
-         print hk
+      face=obj.Face(1.6,5,20,20)
+      hk=True
+      while(True):
          ret,frame=cap.read()
          if not ret: continue
          cv2.imshow('frame',frame)
-         cv2.waitKey(1)
+         faces=face.getFaces(frame)
+         print "No of faces found",len(faces)
+         for f in faces:
+                simg=cv2.cvtColor(f,cv2.COLOR_BGR2GRAY)
+                simg=cv2.resize(simg,(600,600),interpolation=cv2.INTER_AREA)
+                a=recog.getLable(simg)
+                b=recog1.getLable(simg)
+                c=recog2.getLable(simg)
+                print "predictedLable:",a,b,c
+                if False: #c[1] <  24000
+                    cv2.imshow(str(b[0])+":"+str(b[1])+","+str(c[0])+":"+str(c[1]),simg)
+                if hk:
+                   log=Log()
+                   log.text= "predictedLable: %s %s %s" % (a,b,c)
+                   log.save()
+
+         if cv2.waitKey(1)& 0xFF==ord('q'):
+                 break
       cv2.destroyAllWindows()
-      """
+
+      print "complete task"
       return HttpResponse("ho gya")
+
+
+def handle_uploaded_file(f,name):
+    imagePath='media/'+name
+    imageSavePath='media/'+imagePath
+    with open(imageSavePath, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+    return imagePath
+
+def mupload(request):
+    images=request.FILES.getlist('file')
+    for image in images:
+          imagePath=handle_uploaded_file(image,image.name)
+          rollNumber=image.name.split(".")[0]  # demo 12103074.9 -> 12103074
+          imgd=ImageData()
+          imgd.image=imagePath
+          student=getStudent(rollNumber)
+          if student :
+              imgd.student = student
+              imgd.save()
+          else:
+             print "error rollNumber:",rollNumber
+    return HttpResponse("done")
+
+def domore(request):
+    return render(request,'home/domore.html',{'user': onTeacher(request)})

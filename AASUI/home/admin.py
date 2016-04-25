@@ -24,7 +24,9 @@ class Student_Admin(admin.ModelAdmin):
 
 class ImageData_Admin(admin.ModelAdmin):
       list_display = ['student','image_tag']
-
+class Log_Admin(admin.ModelAdmin):
+    list_display = ['text']
+admin.site.register(Log,Log_Admin)    
 admin.site.register(Student,Student_Admin)
 admin.site.register(ImageData,ImageData_Admin)
 admin.site.register(Teacher,Teacher_Admin)

@@ -1,0 +1,43 @@
+        <div class="well">
+            <form id="{{formId}}" method="POST" action="" novalidate="novalidate">
+              {% csrf_token %}
+                <div class="form-group">
+                    <label for="course" class="control-label">Course</label>
+                    <select name="course" class="form-control" style="border-radius: 25px;">
+                         <option value="BTech">BTech</option>
+                         <option value="MTech">MTech</option>
+                         <option value="Msc">Msc</option>
+                         <option value="MBA">MBA</option>
+                    </select>
+                    <span class="help-block"></span>
+                </div>
+                <div class="form-group">
+                    <label for="branch" class="control-label">Brach</label>
+                    <select name="branch" class="form-control">
+                       <option value="CSE">CSE</option>
+                       <option value="ECE">ECE</option>
+                       <option value="MECHANICAL">MECHANICAL</option>
+                       <option value="CIVIL">CIVIL</option>
+                       <option value="CHEMICAL">CHEMICAL</option>
+                    </select>
+                    <span class="help-block"></span>
+                </div>
+                <div class="form-group">
+                    <label for="batch" class="control-label">Batch</label>
+                    <select name="batch" class="form-control" style=" border-radius: 25px;">
+                       {% for x in range %}
+                          <option value="{{x}}">{{x}}</option>
+                       {% endfor %}
+                    </select>
+                    <span class="help-block"></span>
+                </div>
+                <div class="form-group">
+                    <label for="camip" class="control-label">Webcam IP</label>
+                    <input type="text" class="form-control" id="camip" name="camip" value="" required="" placeholder="10.42.0.1">
+                    <span class="help-block"></span>
+                </div>
+            </form>
+
+              <button  class="btn btn-success" id="{{submitButtonId}}">{{submitButtonText}}</button>
+              <div class="modal"><!-- Place at bottom of page --></div>
+        </div>

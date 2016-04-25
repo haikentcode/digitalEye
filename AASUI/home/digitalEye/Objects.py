@@ -2,8 +2,11 @@ import cv2
 import os
 
 #Always path in packeage form pacakge not relative
-frontFaceCascade='digitalEye/xmldata/haarcascade_frontalface_default.xml'
-smileFaceCasecade='digitalEye/xmldata/haarcascade_smile.xml'
+__location__ = os.path.realpath(
+    os.path.join(os.getcwd(), os.path.dirname(__file__)))
+
+frontFaceCascade='xmldata/haarcascade_frontalface_default.xml'
+smileFaceCasecade='xmldata/haarcascade_smile.xml'
 
 class Face:
       'Extracting Face From Image'
@@ -25,5 +28,5 @@ class Face:
           return faceImages    #  NOTE: return oringinal face not gray
 
       def  getFaces(self,image): #return faces image list from image
-          faceObj=cv2.CascadeClassifier(frontFaceCascade)
+          faceObj=cv2.CascadeClassifier(os.path.join(__location__, frontFaceCascade))
           return self.getData(image,faceObj)

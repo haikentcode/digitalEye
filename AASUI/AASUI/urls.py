@@ -17,14 +17,19 @@ from django.conf.urls import url
 from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
-import home
+from home import views
 
 urlpatterns = [
     url(r'^digitalEyeAdmin/', admin.site.urls),
-    url(r'^home','home.views.index',name="home"),
-    url(r'^login','home.views.login',name="login"),
-    url(r'^logout','home.views.logout',name="logout"),
-    url(r'^help','home.views.help',name="help"),
-    url(r'^history','home.views.history',name="history"),
-    url(r'^startcapturing','home.views.startcapturing',name="startcapturing"),
+    url(r'^home',views.index,name="home"),
+    url(r'^login',views.login,name="login"),
+    url(r'^logout',views.logout,name="logout"),
+    url(r'^help',views.help,name="help"),
+    url(r'^domore',views.domore,name='domore'),
+    url(r'^mupload',views.mupload,name='mupload'),
+    url(r'^history/$',views.history,name="history"),
+    url(r'^history/(?P<year>[0-9]{4})/$',views.history,name="history"),
+    url(r'^history/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/$',views.history,name="history"),
+    url(r'^history/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/$',views.history,name="history"),
+    url(r'^startcapturing',views.startcapturing,name="startcapturing"),
 ]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

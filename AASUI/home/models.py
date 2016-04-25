@@ -54,4 +54,8 @@ class Attendance(models.Model):
     students = models.ManyToManyField(Student)
     teacher = models.ForeignKey(Teacher)
     date = models.DateField(blank=True,null=True)
-    
+
+class Log(models.Model):
+      text=models.CharField(max_length=1000,blank=True,null=True)
+      def __str__(self):
+         return "%s" % (self.text)

@@ -3,52 +3,36 @@
 
 {% block content %}
 
-<form action="" method="POST" enctype="multipart/form-data" id="attendanceForm">
-  {% csrf_token %}
-<select name="course" class="btn btn-primary" style="border-radius: 25px;">
-     <option value="BTech">BTech</option>
-     <option value="MTech">MTech</option>
-     <option value="Msc">Msc</option>
-     <option value="MBA">MBA</option>
-</select>
 
-<select name="branch" class="btn btn-primary" style=" border-radius: 25px;">
-   <option value="CSE">CSE</option>
-   <option value="ECE">ECE</option>
-   <option value="MECHANICAL">MECHANICAL</option>
-   <option value="CIVIL">CIVIL</option>
-   <option value="CHEMICAL">CHEMICAL</option>
-</select>
 
-<select name="batch" class="btn btn-primary" style=" border-radius: 25px;">
-   {% for x in range %}
-      <option value="{{x}}">{{x}}</option>
-   {% endfor %}
-</select>
-
-<div class="form-group">
-  <label for="usr">Camera IP:</label>
-  <input type="text" class="form-control" id="camip" name="camip">
-</div>
-
-  <button type="submit" class="btn btn-success" id="startAttendance">Start Attendance</button>
-</form>
-
+{% include "home/classForm.html" with submitButtonId="startAttendance" formId="attendanceForm" submitButtonText="Start Attendance" %}
 
 <script type="text/javascript">
+$body = $("body");
+
+$(document).on({
+    ajaxStart: function() { $body.addClass("loading");    },
+     ajaxStop: function() { $body.removeClass("loading"); }
+});
 
 function startCapturing(){
+
      var fd = new FormData(document.querySelector("#attendanceForm"));
      fd.append("author", "haikent");
      $.ajax({
      url: "startcapturing",
      type: "POST",
      data: fd,
-     success:function(data){alert("Complete")},
+     success:function(data){},
+     error: function (xhr, ajaxOptions, thrownError) {
+        alert(xhr.status);
+        alert(thrownError);
+        alert(ajaxOptions)
+      },
      processData: false,  // tell jQuery not to process the data
      contentType: false   // tell jQuery not to set contentType
      });
-    alert();
+
 }
 
  $("#startAttendance").click(function(){

@@ -1,0 +1,69 @@
+{% extends 'home/main.html' %}
+
+
+{% block content %}
+
+
+<div class="container">
+  <div class="row">
+   <h1>{{name}}</h1>
+   <div class="row">
+      <form id="hkform">
+          {% csrf_token %}
+       <div class="col-sm-3">
+         <input type="file" style="display:none" class="btn btn-info" name="file" id="imageUpload" multiple>
+         <input type="button" class="btn btn-info" value="upload Image Folder" id="uploadImage">
+       </div>
+      </form>
+   </div>
+
+ <br/>
+
+  <div class="row">
+     <div id="resultImages">   </div>
+  </div>
+
+</div>
+
+   <script>
+
+   $body = $("body");
+
+   $(document).on({
+       ajaxStart: function() { $body.addClass("loading");    },
+        ajaxStop: function() { $body.removeClass("loading"); }
+   });
+
+    $("#uploadImage").click(function(){
+      $("#imageUpload").trigger('click');
+    });
+
+    $(":file").change(function(){
+      var fd = new FormData(document.querySelector("#hkform"));
+      $.ajax({
+      url: "/mupload",
+      type: "POST",
+      data: fd,
+      success: function(data){
+            alert(data);
+            $("#resultImages").html("done");
+            //'<img src="/media/'+data+'" class="img-responsive" alt="">'
+         },
+      processData: false,  // tell jQuery not to process the data
+      contentType: false   // tell jQuery not to set contentType
+      });
+
+    });
+
+       $("#calculate").click(function(){
+             expr=$("#expr").val();
+             $("#result").val("processing");
+             $.post("/calculate/",{expr:expr}).done(function(data){
+                $("#result").val(data);
+
+            });
+
+       });
+   </script>
+
+{% endblock %}

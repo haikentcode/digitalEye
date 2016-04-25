@@ -2,11 +2,16 @@
 
 
 {% block content %}
+
+    <ul class="list-group">
      {% for attendance in attendanceList %}
-       {{attendance.date}}
-       {% for student in attendance.students.all %}
-         {{student}}
-         <br/>
-       {% endfor %}
+     <li class="list-group-item list-group-item-info">
+         {{attendance.date}}
+         <span class="label label-success">{{attendance.students.all.0.branch}}</span>
+         <span class="label label-success">{{attendance.students.all.0.batch}}</span>
+         <span class="label label-success"> {{attendance.students.all.0.course}}</span>
+         <span class="badge">Presents {{attendance.students.count}}</span>
+    </li>
      {% endfor %}
+  </ul>
 {% endblock %}
