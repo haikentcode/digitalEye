@@ -13,8 +13,6 @@
 
 	<div id="results">Your captured image will appear here...</div>
 
-	<h1>WebcamJS Test Page</h1>
-	<h3>Demonstrates simple 320x240 capture &amp; display</h3>
 
 	<div id="my_camera"></div>
 
@@ -38,26 +36,38 @@
 
 	<!-- A button for taking snaps -->
 	<form name="takesnapshot" id="takesnapshot">
-		<input type=button value="Take Snapshot" onClick="take_snapshot()">
+		<input type=button value="Stop Snapshot" onClick="stop_snapshot()">
 	</form>
-
+	<form name="takesnapshot" id="takesnapshot">
+ 		<input type=button value="Start Snapshot" onClick="start_snapshot()">
+ 	</form>
 	<!-- Code to handle taking the snapshot and displaying it locally -->
 	<script language="JavaScript">
 
+   var hk=true;
+   function stop_snapshot() {
+   	hk=false;
+   }
+	 function start_snapshot() {
+		 hk=true;
+		 take_snapshot();
+	 }
 
 		function take_snapshot() {
 			// take snapshot and get image data
 			Webcam.snap( function(data_uri) {
 
-				document.getElementById('results').innerHTML = '<h2>Here is your image:</h2>' +
+				document.getElementById('results').innerHTML = '<h2>sending Image to server:</h2>' +
 					'<img src="'+data_uri+'"/>';
-           Webcam.upload( data_uri, "/webcamimage/",function(code, text) {alert(text)});
+           Webcam.upload( data_uri, "/webcamimage/",function(code, text) {
 
+              if(hk){
+								 t=setTimeout(take_snapshot,1000);
+							}
+					 });
         } );
 
 		}
-
-
-
+    setTimeout(take_snapshot,1000);
 	</script>
 {% endblock %}
