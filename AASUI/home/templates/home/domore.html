@@ -55,15 +55,7 @@
 
     });
 
-       $("#calculate").click(function(){
-             expr=$("#expr").val();
-             $("#result").val("processing");
-             $.post("/calculate/",{expr:expr}).done(function(data){
-                $("#result").val(data);
-
-            });
-
-       });
+       
    </script>
 
 {% endblock %}

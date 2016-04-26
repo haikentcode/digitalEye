@@ -9,6 +9,10 @@ import cv2
 import os
 import datetime
 import time
+from django.views.decorators.csrf import csrf_exempt
+
+import redis
+import pickle
 __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
@@ -151,3 +155,35 @@ def mupload(request):
 
 def domore(request):
     return render(request,'home/domore.html',{'user': onTeacher(request)})
+
+
+
+
+def webcamtest(request):
+        return render(request,'home/testwebcam.html',{'user': onTeacher(request)})
+
+
+
+#this function take Inmemoryuploadedfile and save into temp file read as openCV image and return then del tem
+def get_uploaded_image(f,name):
+    imagePath='media/'+name
+    imageSavePath='media/'+imagePath
+    with open(imageSavePath, 'wb+') as destination:
+        for chunk in f.chunks():
+            destination.write(chunk)
+    img=cv2.imread(imageSavePath)
+    os.remove(imageSavePath)
+    return img
+
+
+#this function get webcam.upload using FILES upload method
+#csrf_exempt remove csrf missing server side error
+
+@csrf_exempt
+def webcamimage(request):
+       teacher=onTeacher(request)
+       if request.FILES:
+           image=request.FILES.get('webcam')
+           image=get_uploaded_image(image,teacher.emailId)
+           
+       return HttpResponse("done")
