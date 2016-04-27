@@ -11,8 +11,14 @@ import datetime
 import time
 from django.views.decorators.csrf import csrf_exempt
 
+
+#time is everything
+
 import redis
 import pickle
+
+rd = redis.StrictRedis(host='localhost', port=6379, db=0)
+
 __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
@@ -103,7 +109,8 @@ def getpredictABC(r1,r2,r3,frame):
 
 
 
-def getr1r2r3(course,branch,batch):
+def getr1r2r3(request):
+      branch,course,batch=getBranchCourseBatch(request)
       images,lables=getimageslables(course,branch,batch)
       print images,lables
       r1 = rec.Recognizer()
@@ -115,11 +122,11 @@ def getr1r2r3(course,branch,batch):
       return r1,r2,r3
 
 def setBranchCourseBatch(request):
-    course=request.POST.get('course')
     branch=request.POST.get('branch')
+    course=request.POST.get('course')
     batch=request.POST.get('batch')
-    request.session['course']=course
     request.session['branch']=branch
+    request.session['course']=course
     request.session['batch']=batch
 
 def getBranchCourseBatch(request):
@@ -128,38 +135,38 @@ def getBranchCourseBatch(request):
     batch=request.session.get('batch')
     return branch,course,batch
 
+def getBCBStirng(request):
+    branch,course,batch=getBranchCourseBatch(request)
+    return branch+"_"+course+"_"+batch
+
+def setRecognizer(request):
+    global rd
+    key=getBCBStirng(request)
+    if not rd.get(key):
+            value=getr1r2r3(request)
+            value=pickle.dumps(value)
+            rd.set(key,value)
+
+def getRecognizer(request):
+    global rd
+    key=getBCBStirng(request)
+    if rd.get(key):
+            value=rd.get(key)
+            value=pickle.loads(value)
+            return value
+    else:
+        setRecognizer(request)
+        return getRecognizer(request)
+
+r1=None
+r2=None
+r3=None
 def startcapturing(request):
-      #this is way to read video frame
-      #path=cpath("/home/haikent/Desktop/fyp/digitalEye/AASUI/media/media/dic.mp4")
-      #print path
-      #cap=cv2.VideoCapture(path)
-      #-------------------*------------------------------------//
-      """
-      cap=cv2.VideoCapture(0) #"http://10.42.0.41:8080/video"
-      course=request.POST.get('course')
-      branch=request.POST.get('branch')
-      batch=request.POST.get('batch')
-
-      r1,r2,r3=getr1r2r3(course,branch,batch)
-
-      hk=True
-      while(True):
-         ret,frame=cap.read()
-         if not ret: continue
-         cv2.imshow('frame',frame)
-         print getpredictABC(r1,r2,r3,frame)
-         if cv2.waitKey(1)& 0xFF==ord('q'):
-                 break
-      cv2.destroyAllWindows()
-
-      print "complete task"
-      return HttpResponse("ho gya")
-      """
+      global r1,r2,r3
       setBranchCourseBatch(request)
-
-
-
-
+      r1,r2,r3=getr1r2r3(request)
+      print r1,r2,r3
+      return HttpResponse("done")
 
 def handle_uploaded_file(f,name):
     imagePath='media/'+name
@@ -195,6 +202,7 @@ def webcamtest(request):
 
 
 
+
 #this function take Inmemoryuploadedfile and save into temp file read as openCV image and return then del tem
 def get_uploaded_image(f,name):
     imagePath='media/'+name
@@ -206,15 +214,17 @@ def get_uploaded_image(f,name):
     os.remove(imageSavePath)
     return img
 
-
 #this function get webcam.upload using FILES upload method
 #csrf_exempt remove csrf missing server side error
 
 @csrf_exempt
 def webcamimage(request):
+       global r1,r2,r3
+       if not any([r1,r2,r3]) :
+           r1,r2,r3=getr1r2r3(request)
        teacher=onTeacher(request)
        if request.FILES:
            image=request.FILES.get('webcam')
            image=get_uploaded_image(image,teacher.emailId)
-           print image ,"notkfdfd"
+           print getpredictABC(r1,r2,r3,image)
        return HttpResponse("done")
