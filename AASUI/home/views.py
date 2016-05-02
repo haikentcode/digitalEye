@@ -12,13 +12,6 @@ import time
 from django.views.decorators.csrf import csrf_exempt
 
 
-#time is everything
-
-import redis
-import pickle
-
-rd = redis.StrictRedis(host='localhost', port=6379, db=0)
-
 __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
@@ -128,6 +121,7 @@ def setBranchCourseBatch(request):
     request.session['branch']=branch
     request.session['course']=course
     request.session['batch']=batch
+    print "set=",course,branch,batch
 
 def getBranchCourseBatch(request):
     course=request.session.get('course')
@@ -135,32 +129,10 @@ def getBranchCourseBatch(request):
     batch=request.session.get('batch')
     return branch,course,batch
 
-def getBCBStirng(request):
-    branch,course,batch=getBranchCourseBatch(request)
-    return branch+"_"+course+"_"+batch
-
-def setRecognizer(request):
-    global rd
-    key=getBCBStirng(request)
-    if not rd.get(key):
-            value=getr1r2r3(request)
-            value=pickle.dumps(value)
-            rd.set(key,value)
-
-def getRecognizer(request):
-    global rd
-    key=getBCBStirng(request)
-    if rd.get(key):
-            value=rd.get(key)
-            value=pickle.loads(value)
-            return value
-    else:
-        setRecognizer(request)
-        return getRecognizer(request)
-
 r1=None
 r2=None
 r3=None
+
 def startcapturing(request):
       global r1,r2,r3
       setBranchCourseBatch(request)
@@ -191,14 +163,31 @@ def mupload(request):
              print "error rollNumber:",rollNumber
     return HttpResponse("done")
 
+
 def domore(request):
-    return render(request,'home/domore.html',{'user': onTeacher(request)})
+    if request.session.get('teacher',None):
+        teacher=onTeacher(request)
+        return render(request,'home/domore.html',{'user': teacher})
+    else:
+
+       return HttpResponseRedirect('/login')
+
 
 
 
 
 def webcamtest(request):
-        return render(request,'home/testwebcam.html',{'user': onTeacher(request)})
+        if request.session.get('teacher',None):
+            teacher=onTeacher(request)
+            if not all(getBranchCourseBatch(request)):
+                 print "bcb not found:",getBranchCourseBatch(request)
+                 return HttpResponseRedirect("/home/")
+            return render(request,'home/testwebcam.html',{'user':teacher})
+
+        else:
+
+           return HttpResponseRedirect('/login')
+
 
 
 
@@ -220,11 +209,21 @@ def get_uploaded_image(f,name):
 @csrf_exempt
 def webcamimage(request):
        global r1,r2,r3
-       if not any([r1,r2,r3]) :
+       if not all([r1,r2,r3]) :
            r1,r2,r3=getr1r2r3(request)
        teacher=onTeacher(request)
+       import pickle
+       type(r1)
+       #print teacher,r1,r2,r3
        if request.FILES:
            image=request.FILES.get('webcam')
            image=get_uploaded_image(image,teacher.emailId)
-           print getpredictABC(r1,r2,r3,image)
+           output=getpredictABC(r1,r2,r3,image)
+           if len(output)>0:
+                 txt="%s"%output
+                 l=Log()
+                 l.text=txt
+                 l.save()
+           print output
        return HttpResponse("done")
+       

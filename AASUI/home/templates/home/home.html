@@ -24,8 +24,8 @@ function startCapturing(){
      type: "POST",
      data: fd,
      success:function(data){
-
-       window.open('/webcamtest/')
+      alert(data)     
+       window.open('/webcamtest/','_self')
      },
      error: function (xhr, ajaxOptions, thrownError) {
         alert(xhr.status);
