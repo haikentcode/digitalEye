@@ -25,11 +25,12 @@ def getStudent(rollNumber):
 
 def index(request):
     if request.session.get('teacher',None):
+        unsetBranchCourseBatch(request)
         teacher=onTeacher(request)
         return render(request,'home/home.html',{"user":teacher,'range':range(2010,2222)})
     else:
 
-       return HttpResponseRedirect('/login')
+       return HttpResponseRedirect('/login/')
 
 
 
@@ -60,7 +61,8 @@ def logout(request):
 
 
 def help(request):
-    return render(request,'home/help.html',{})
+      teacher = onTeacher(request)
+      return render(request,'home/help.html',{'user':teacher})
 
 
 
@@ -114,6 +116,12 @@ def getr1r2r3(request):
       r3.train(images,lables,2)
       return r1,r2,r3
 
+
+def unsetBranchCourseBatch(request):
+        request.session['branch']=None
+        request.session['course']=None
+        request.session['batch']=None
+
 def setBranchCourseBatch(request):
     branch=request.POST.get('branch')
     course=request.POST.get('course')
@@ -132,10 +140,12 @@ def getBranchCourseBatch(request):
 r1=None
 r2=None
 r3=None
-
 def startcapturing(request):
+
       global r1,r2,r3
+      print "come1"
       setBranchCourseBatch(request)
+      print "come2"
       r1,r2,r3=getr1r2r3(request)
       print r1,r2,r3
       return HttpResponse("done")
@@ -150,7 +160,10 @@ def handle_uploaded_file(f,name):
 
 def mupload(request):
     images=request.FILES.getlist('file')
+    i=0
     for image in images:
+          print i
+          i+=1
           imagePath=handle_uploaded_file(image,image.name)
           rollNumber=image.name.split(".")[0]  # demo 12103074.9 -> 12103074
           imgd=ImageData()
@@ -179,13 +192,12 @@ def domore(request):
 def webcamtest(request):
         if request.session.get('teacher',None):
             teacher=onTeacher(request)
-            if not all(getBranchCourseBatch(request)):
+            bcb = getBranchCourseBatch(request)
+            if not all(bcb):
                  print "bcb not found:",getBranchCourseBatch(request)
                  return HttpResponseRedirect("/home/")
-            return render(request,'home/testwebcam.html',{'user':teacher})
-
+            return render(request,'home/testwebcam.html',{'user':teacher,'bcb':bcb})
         else:
-
            return HttpResponseRedirect('/login')
 
 
@@ -226,4 +238,3 @@ def webcamimage(request):
                  l.save()
            print output
        return HttpResponse("done")
-       

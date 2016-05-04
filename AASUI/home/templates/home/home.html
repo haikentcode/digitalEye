@@ -20,14 +20,15 @@ function startCapturing(){
      var fd = new FormData(document.querySelector("#attendanceForm"));
      fd.append("author", "haikent");
      $.ajax({
-     url: "startcapturing",
+     url: "/startcapturing/",
      type: "POST",
      data: fd,
      success:function(data){
-      alert(data)     
+       alert(data)
        window.open('/webcamtest/','_self')
      },
      error: function (xhr, ajaxOptions, thrownError) {
+       alert("errrr")
         alert(xhr.status);
         alert(thrownError);
         alert(ajaxOptions);

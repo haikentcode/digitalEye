@@ -4,18 +4,66 @@
 {% block content %}
 
 	<style type="text/css">
-		body { font-family: Helvetica, sans-serif; }
-		h2, h3 { margin-top:0; }
-		form { margin-top: 15px; }
-		form > input { margin-right: 15px; }
-		#results { float:right; margin:20px; padding:20px; border:1px solid; background:#ccc; }
+
 	</style>
 
-	<div id="results">Your captured image will appear here...</div>
 
 
-	<div id="my_camera"></div>
-  <div id="identified"></div>
+
+
+   <div class="row">
+			 <div class="col-md-3">
+				 <p class="text-primary">Branch : {{bcb.0}}</p>
+			 </div>
+			 <div class="col-md-3">
+				 <p class="text-primary">Course : {{bcb.1}}</p>
+			 </div>
+			 <div class="col-md-3">
+				 <p class="text-primary">Batch : {{bcb.2}}</p>
+			 </div>
+			 <div class="col-md-3">
+				  <a class="btn btn-primary" href="/help/" role="button">Change</a>
+			 </div>
+	 </div>
+
+	 <hr/>
+
+   <div class="row well">
+		 <div class="col-sm-6">
+			 <div class="" id="my_camera"></div>
+		 </div>
+		 <div class="col-sm-6">
+			 <div class="well well-sm" id="results"></div>
+		 </div>
+	 </div>
+
+	<div class="row">
+   <div class="col-sm-12 well well-sm ">
+			<div class="col-sm-2">
+				<form name="takesnapshot" id="takesnapshot">
+				 <input type=button class="btn btn-info" value="Start Snapshot" onClick="start_snapshot()">
+			  </form>
+			</div>
+			<div class="col-sm-1" id="sendinggif">
+        <img src="/media/sending.gif" width="50px" class="img-responsive" alt="">
+			</div>
+			<div class="col-sm-2">
+				<form name="takesnapshot" id="takesnapshot">
+			 		<input type=button class="btn btn-primary" value="Stop Snapshot" onClick="stop_snapshot()">
+			 	</form>
+			</div>
+
+			<div class="col-sm-2">
+				<form method="post" action="/done/" enctype="multipart/form-data">
+			 			<button type="submit" name="done"  id="done" class="btn btn-success">Done</button>
+			 	</form>
+			</div>
+	 </div>
+
+
+  </div>
+
+
 	<!-- First, include the Webcam.js JavaScript Library -->
 	{% load staticfiles %}
 	<script type="text/javascript" src='{% static "home/js/webcam.js" %}'></script>
@@ -34,21 +82,19 @@
 		Webcam.attach( '#my_camera' );
 	</script>
 
-	<!-- A button for taking snaps -->
-	<form name="takesnapshot" id="takesnapshot">
-		<input type=button value="Stop Snapshot" onClick="stop_snapshot()">
-	</form>
-	<form name="takesnapshot" id="takesnapshot">
- 		<input type=button value="Start Snapshot" onClick="start_snapshot()">
- 	</form>
+
+
 	<!-- Code to handle taking the snapshot and displaying it locally -->
+
 	<script language="JavaScript">
 
    var hk=true;
    function stop_snapshot() {
    	hk=false;
+		$("#sendinggif").html('');
    }
 	 function start_snapshot() {
+		 $("#sendinggif").html('<img src="/media/sending.gif" width="50px" class="img-responsive" alt="">');
 		 hk=true;
 		 take_snapshot();
 	 }
@@ -56,11 +102,9 @@
 		function take_snapshot() {
 			// take snapshot and get image data
 			Webcam.snap( function(data_uri) {
-
-				document.getElementById('results').innerHTML = '<h2>sending Image to server:</h2>' +
-					'<img src="'+data_uri+'"/>';
+				document.getElementById('results').innerHTML =
+					'<img src="'+data_uri+'" class="img-responsive" alt="" />';
            Webcam.upload( data_uri, "/webcamimage/",function(code, text) {
-                document.getElementById('identified').innerHTML=text
               if(hk){
 								 t=setTimeout(take_snapshot,1000);
 							}
