@@ -1,8 +1,8 @@
 #Requirement
 ```python
- 1.pyhton
+ 1.python
  2.OpenCV
- 3.django
+ 3.Django
  4.bootstrap3 : pip install django-bootstrap3
  5.widget_tweaks : pip install django-widget-tweaks
 ```

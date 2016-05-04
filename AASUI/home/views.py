@@ -16,8 +16,7 @@ __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 def rhome(request):
-    return HttpResponseRedirect("/home/")
-    
+    return HttpResponseRedirect('/home/')    
 def cpath(fpath):
     return os.path.join(__location__, fpath)
 def onTeacher(request):
