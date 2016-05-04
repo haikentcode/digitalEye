@@ -16,7 +16,7 @@ __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
 
 def rhome(request):
-    return HttpResponseRedirect('/home/')    
+    return HttpResponseRedirect('/home/')
 def cpath(fpath):
     return os.path.join(__location__, fpath)
 def onTeacher(request):
@@ -142,8 +142,8 @@ def getBranchCourseBatch(request):
 r1=None
 r2=None
 r3=None
-def startcapturing(request):
 
+def startcapturing(request):
       global r1,r2,r3
       print "come1"
       setBranchCourseBatch(request)

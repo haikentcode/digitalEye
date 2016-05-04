@@ -18,7 +18,6 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
 from home import views
-
 urlpatterns = [
     url(r'^digitalEyeAdmin/', admin.site.urls),
     url(r'^$',views.rhome,name="rhome"),
@@ -31,8 +30,5 @@ urlpatterns = [
     url(r'^history/$',views.history,name="history"),
     url(r'^webcamtest/$',views.webcamtest,name="webcamtest"),
     url(r'^webcamimage/$',views.webcamimage,name="webcamimage"),
-    url(r'^history/(?P<year>[0-9]{4})/$',views.history,name="history"),
-    url(r'^history/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/$',views.history,name="history"),
-    url(r'^history/(?P<year>[0-9]{4})/(?P<month>[0-9]{2})/(?P<day>[0-9]{2})/$',views.history,name="history"),
-    url(r'^startcapturing',views.startcapturing,name="startcapturing"),
+    url(r'^startcapturing/$',views.startcapturing,name="startcapturing"),
 ]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
