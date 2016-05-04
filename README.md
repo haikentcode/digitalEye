@@ -1,4 +1,13 @@
-#Admin Privileges:-
+#Requirement
+```python
+ 1.pyhton
+ 2.OpenCV
+ 3.django
+ 4.bootstrap3 : pip install django-bootstrap3
+ 5.widget_tweaks : pip install django-widget-tweaks
+```
+
+##Admin Privileges:-
 ```python
 1.Admin can add new teacher into the database
 2.Admin can remove existing teacher from the database.
@@ -9,20 +18,20 @@
 6.Admin can view logs or error,if any.It is helpful in determining the activities
   that were left undone in case of system crash.
 ```
-#Teacher Privileges:-
+##Teacher Privileges:-
 ```python
 1.Teacher can view previous as well as current attendance.
 2.Teacher can take attendance.
 ```
 
-#Pre-processing of project:-
+##Pre-processing of project:-
 ```python
 1.Admin will login into the system.
 2.He/She will register teachers and students into the system.
 3.Admin will add image data of different students into the database
  ```
 
-#How to use:-
+##How to use:-
 ```python
 1.The teacher logs into the system using his/her credentials.
 2.He/she will take the attendance on the click of start button(in which he/she

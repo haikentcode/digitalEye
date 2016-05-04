@@ -21,6 +21,7 @@ from home import views
 
 urlpatterns = [
     url(r'^digitalEyeAdmin/', admin.site.urls),
+    url(r'^$',views.rhome,name="rhome"),
     url(r'^home',views.index,name="home"),
     url(r'^login',views.login,name="login"),
     url(r'^logout',views.logout,name="logout"),
