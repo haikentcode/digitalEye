@@ -20,7 +20,10 @@ def rhome(request):
 def cpath(fpath):
     return os.path.join(__location__, fpath)
 def onTeacher(request):
-      return Teacher.objects.get(emailId=request.session.get('teacher'))
+      if request.session.get('teacher'):
+         return Teacher.objects.get(emailId=request.session.get('teacher'))
+      else:
+         return None
 
 def getStudent(rollNumber):
     return Student.objects.get(rollNumber=rollNumber)
@@ -90,6 +93,7 @@ def getimageslables(course,branch,batch):
             return images ,lables
 
 
+#testing all type algo
 def getpredictABC(r1,r2,r3,frame):
     face=obj.Face(1.6,5,20,20)
     faces=face.getFaces(frame)
@@ -104,7 +108,17 @@ def getpredictABC(r1,r2,r3,frame):
            abclist.append(( a,b,c))
     return abclist
 
-
+def getpredictLable(trainObj,frame):
+    face=obj.Face(1.6,5,20,20)
+    faces=face.getFaces(frame)
+    print "No of faces found",len(faces)
+    predictFace=[]
+    for f in faces:
+           simg=cv2.cvtColor(f,cv2.COLOR_BGR2GRAY)
+           simg=cv2.resize(simg,(600,600),interpolation=cv2.INTER_AREA)
+           a=trainObj.getLable(simg)
+           predictFace.append(a)
+    return predictFace
 
 #testing all type algo
 def getr1r2r3(request):
@@ -119,12 +133,7 @@ def getr1r2r3(request):
       r3.train(images,lables,2)
       return r1,r2,r3
 
-#eigenfaces
-def eigenfaces(request):
-      branch,course,batch=getBranchCourseBatch(request)
-      images,lables=getimageslables(course,branch,batch)
-      ef=r3.train(images,lables,2)
-      return ef
+
 
 def unsetBranchCourseBatch(request):
         request.session['branch']=None
@@ -169,17 +178,35 @@ def TESTstartcapturing(request):
       return HttpResponse("done")
 
 
+#eigenfaces
+def eigenfaces(request):
+      branch,course,batch=getBranchCourseBatch(request)
+      images,lables=getimageslables(course,branch,batch)
+      ef=rec.Recognizer()
+      print "Training Start ...",lables
+      ef.train(images,lables,2)
+      print "Training Done"
+      return ef
+
 #ef global train objects
 ef=None
 def startcapturing(request):
       global ef
       print "startcapturing function start"
       if setBranchCourseBatch(request):
+          ipwebcamurl=request.POST.get('ipwebcamurl')
+          if ipwebcamurl:
+                print "web cam ip set",ipwebcamurl
+                request.session['ipwebcamurl']=ipwebcamurl
           print "branch course batch set"
-          ef=eigenfaces
+          ef=eigenfaces(request)
           if ef:
             print "Training eigenfaces object done"
             return HttpResponse("done")
+          else:
+              print "ef not created ef=",ef
+              return HttpResponse(status=410)
+
       else:
           return HttpResponse("failed")
 
@@ -254,29 +281,64 @@ def get_uploaded_image(f,name):
 #this function get webcam.upload using FILES upload method
 #csrf_exempt remove csrf missing server side error
 
+# take image frop ip web cam and then predict the faces
+@csrf_exempt
+def ipcamimage(request):
+    ipwebcamurl=request.session.get('ipwebcamurl')
+    if ipwebcamurl:
+        cap=cv2.VideoCapture(ipwebcamurl)
+        ret,frame=cap.read()
+        if ret:
+            imagePridictor(frame)
+            return HttpResponse("done")
+
+
+# take image frop webcam and then predict the faces
 @csrf_exempt
 def webcamimage(request):
-       global r1,r2,r3
-       if not all([r1,r2,r3]) :
-           r1,r2,r3=getr1r2r3(request)
+       global ef
+       if not ef:
+           ef=eigenfaces(request)
        teacher=onTeacher(request)
        import pickle
        type(r1)
-       #print teacher,r1,r2,r3
        if request.FILES:
            image=request.FILES.get('webcam')
            image=get_uploaded_image(image,teacher.emailId)
-           output=getpredictABC(r1,r2,r3,image)
-           if len(output)>0:
+           imagePridictor(image)
+           return HttpResponse("done")
 
-                 txt="%s"%output
-                 l=Log()
-                 l.text=txt
-                 l.save()
-           print output
-       return HttpResponse("done")
 
+#take image obj as argument and predict the faces lable
+def imagePridictor(image):
+     output=getpredictLable(ef,image)
+     if len(output)>0:
+           txt="%s"%output
+           l=Log()
+           l.text=txt
+           l.save()
+     print output
+
+
+def ipwebcamcapture(request):
+      teacher=onTeacher(request)
+      ipwebcamurl=request.session.get('ipwebcamurl')
+      if ipwebcamurl and teacher:
+           return render(request,'home/ipwebcamcapture.html',{'user':teacher,'ipwebcamurl':ipwebcamurl})
+      else:
+           return HttpResponseRedirect('/home')
 
 #--------------------------------------------------------#
-def HAdecisionAlgorithm(request, listOfABCdata):
+def HAdecisionAlgorithm(listPridictdata):
       print "I will come soon"
+
+
+def profile(request):
+    teacher=onTeacher(request)
+    if teacher:
+        return render(request,'home/profile.html',{'user':teacher})
+    else:
+        return HttpResponseRedirect('/home')
+
+def done(request):
+    pass

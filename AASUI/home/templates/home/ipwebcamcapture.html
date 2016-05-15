@@ -1,0 +1,85 @@
+{% extends 'home/main.html' %}
+
+
+{% block content %}
+<div class="row">
+    <div class="col-md-3">
+      <p class="text-primary">Branch : {{bcb.0}}</p>
+    </div>
+    <div class="col-md-3">
+      <p class="text-primary">Course : {{bcb.1}}</p>
+    </div>
+    <div class="col-md-3">
+      <p class="text-primary">Batch : {{bcb.2}}</p>
+    </div>
+    <div class="col-md-3">
+       <a class="btn btn-primary" href="/help/" role="button">Change</a>
+    </div>
+</div>
+
+<hr/>
+
+<div class="row well">
+  <div class="col-sm-6">
+    <div class="well well-sm" id="my_camera">
+    <img src="{{ipwebcamurl}}" class="img-responsive" width="320" height="240" >
+    </div>
+  </div>
+  <div class="col-sm-6">
+    <div class="well well-sm" id="results"></div>
+  </div>
+</div>
+
+<div class="row">
+<div class="col-sm-12 well well-sm ">
+   <div class="col-sm-2">
+     <form name="takesnapshot" id="takesnapshot">
+      <input type=button class="btn btn-info" value="Start Snapshot" onClick="start_snapshot()">
+     </form>
+   </div>
+   <div class="col-sm-1" id="sendinggif">
+     <img src="/media/sending.gif" width="50px" class="img-responsive" alt="">
+   </div>
+   <div class="col-sm-2">
+     <form name="takesnapshot" id="takesnapshot">
+       <input type=button class="btn btn-primary" value="Stop Snapshot" onClick="stop_snapshot()">
+     </form>
+   </div>
+
+   <div class="col-sm-2">
+     <form >
+         <input type=button name="done"  id="done" class="btn btn-primary" value="Done">
+     </form>
+   </div>
+</div>
+
+
+</div>
+
+
+<!-- First, include the Webcam.js JavaScript Library -->
+{% load staticfiles %}
+<script type="text/javascript" src='{% static "home/js/webcam.js" %}'></script>
+
+<script>
+
+var hk=true;
+function stop_snapshot() {
+ hk=false;
+ $("#sendinggif").html('');
+}
+function start_snapshot() {
+  $("#sendinggif").html('<img src="/media/sending.gif" width="50px" class="img-responsive" alt="">');
+  hk=true;
+  take_snapshot();
+}
+
+ function take_snapshot() {
+      /* rough cod */
+      $.post( "/ipcamimage/", function( data ){if(hk)setTimeout(take_snapshot,1000);});
+    }
+
+setTimeout(take_snapshot,1000);
+</script>
+
+{% endblock %}

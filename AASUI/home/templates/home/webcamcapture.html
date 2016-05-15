@@ -54,8 +54,8 @@
 			</div>
 
 			<div class="col-sm-2">
-				<form method="post" action="/done/" enctype="multipart/form-data">
-			 			<button type="submit" name="done"  id="done" class="btn btn-success">Done</button>
+				<form >
+					  <input type=button name="done"  id="done" class="btn btn-primary" value="Done">
 			 	</form>
 			</div>
 	 </div>
@@ -87,6 +87,11 @@
 	<!-- Code to handle taking the snapshot and displaying it locally -->
 
 	<script language="JavaScript">
+
+
+	$("#done").click(function(){
+      alert("done")
+	});
 
    var hk=true;
    function stop_snapshot() {

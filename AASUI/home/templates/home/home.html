@@ -15,44 +15,43 @@ $(document).on({
      ajaxStop: function() { $body.removeClass("loading"); }
 });
 
-function startCapturing(){
+function ajaxSend(fd,url,rurl){
 
-     var fd = new FormData(document.querySelector("#attendanceForm"));
-     fd.append("author", "haikent");
-     $.ajax({
-     url: "/startcapturing/",
-     type: "POST",
-     data: fd,
-     success:function(data){
-       window.open('/webcamcapture/','_self')
-     },
-     error: function (xhr, ajaxOptions, thrownError) {
-       alert("errrr")
-        alert(xhr.status);
-        alert(thrownError);
-        alert(ajaxOptions);
-      },
-     processData: false,  // tell jQuery not to process the data
-     contentType: false   // tell jQuery not to set contentType
-     });
+  $.ajax({
+  url:url,
+  type: "POST",
+  data: fd,
+  success:function(data){
+    window.open(rurl,'_self')
+  },
+  error: function (xhr, ajaxOptions, thrownError) {
+    alert("errrr")
+     alert(xhr.status);
+     alert(thrownError);
+     alert(ajaxOptions);
+   },
+  processData: false,  // tell jQuery not to process the data
+  contentType: false   // tell jQuery not to set contentType
+  });
 
 }
 
 
-function ipcamstartCapturing(){
+function startCapturing(){
 
      var fd = new FormData(document.querySelector("#attendanceForm"));
+     fd.append("author", "haikent");
+     ajaxSend(fd,"/startcapturing/",'/webcamcapture/')
+}
+
+
+
+
+function ipcamstartCapturing(){
+     var fd = new FormData(document.querySelector("#attendanceForm"));
      var url=$("#ipwebcamUrl").val()
-     $.ajax({
-     url:url,
-     data: {},
-     complete: function(xhr, statusText){
-           alert(xhr.status)
-
-       }
-    });
-
-
+     fd.append("ipwebcamurl",url);
+     ajaxSend(fd,"/startcapturing/",'/ipwebcamcapture/')
 }
 
 
