@@ -106,6 +106,7 @@ def getpredictABC(r1,r2,r3,frame):
 
 
 
+#testing all type algo
 def getr1r2r3(request):
       branch,course,batch=getBranchCourseBatch(request)
       images,lables=getimageslables(course,branch,batch)
@@ -118,6 +119,12 @@ def getr1r2r3(request):
       r3.train(images,lables,2)
       return r1,r2,r3
 
+#eigenfaces
+def eigenfaces(request):
+      branch,course,batch=getBranchCourseBatch(request)
+      images,lables=getimageslables(course,branch,batch)
+      ef=r3.train(images,lables,2)
+      return ef
 
 def unsetBranchCourseBatch(request):
         request.session['branch']=None
@@ -125,13 +132,19 @@ def unsetBranchCourseBatch(request):
         request.session['batch']=None
 
 def setBranchCourseBatch(request):
-    branch=request.POST.get('branch')
-    course=request.POST.get('course')
-    batch=request.POST.get('batch')
-    request.session['branch']=branch
-    request.session['course']=course
-    request.session['batch']=batch
-    print "set=",course,branch,batch
+    try:
+        branch=request.POST.get('branch')
+        course=request.POST.get('course')
+        batch=request.POST.get('batch')
+        request.session['branch']=branch
+        request.session['course']=course
+        request.session['batch']=batch
+        print "set=",course,branch,batch
+        return True
+    except:
+        print "Somthing wrong with set branch , course , batch"
+        return False
+
 
 def getBranchCourseBatch(request):
     course=request.session.get('course')
@@ -139,11 +152,14 @@ def getBranchCourseBatch(request):
     batch=request.session.get('batch')
     return branch,course,batch
 
-r1=None
-r2=None
-r3=None
 
-def startcapturing(request):
+
+
+#test all algo
+r1=None  #LBPH train object
+r2=None  #fisherfaces train object
+r3=None  #eigenfaces  train object
+def TESTstartcapturing(request):
       global r1,r2,r3
       print "come1"
       setBranchCourseBatch(request)
@@ -152,6 +168,22 @@ def startcapturing(request):
       print r1,r2,r3
       return HttpResponse("done")
 
+
+#ef global train objects
+ef=None
+def startcapturing(request):
+      global ef
+      print "startcapturing function start"
+      if setBranchCourseBatch(request):
+          print "branch course batch set"
+          ef=eigenfaces
+          if ef:
+            print "Training eigenfaces object done"
+            return HttpResponse("done")
+      else:
+          return HttpResponse("failed")
+
+
 def handle_uploaded_file(f,name):
     imagePath='media/'+name
     imageSavePath='media/'+imagePath
@@ -159,6 +191,7 @@ def handle_uploaded_file(f,name):
         for chunk in f.chunks():
             destination.write(chunk)
     return imagePath
+
 
 def mupload(request):
     images=request.FILES.getlist('file')
@@ -179,6 +212,7 @@ def mupload(request):
     return HttpResponse("done")
 
 
+
 def domore(request):
     if request.session.get('teacher',None):
         teacher=onTeacher(request)
@@ -191,14 +225,14 @@ def domore(request):
 
 
 
-def webcamtest(request):
+def webcamcapture(request):
         if request.session.get('teacher',None):
             teacher=onTeacher(request)
             bcb = getBranchCourseBatch(request)
             if not all(bcb):
                  print "bcb not found:",getBranchCourseBatch(request)
                  return HttpResponseRedirect("/home/")
-            return render(request,'home/testwebcam.html',{'user':teacher,'bcb':bcb})
+            return render(request,'home/webcamcapture.html',{'user':teacher,'bcb':bcb})
         else:
            return HttpResponseRedirect('/login')
 
@@ -234,9 +268,15 @@ def webcamimage(request):
            image=get_uploaded_image(image,teacher.emailId)
            output=getpredictABC(r1,r2,r3,image)
            if len(output)>0:
+
                  txt="%s"%output
                  l=Log()
                  l.text=txt
                  l.save()
            print output
        return HttpResponse("done")
+
+
+#--------------------------------------------------------#
+def HAdecisionAlgorithm(request, listOfABCdata):
+      print "I will come soon"

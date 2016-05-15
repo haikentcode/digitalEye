@@ -5,7 +5,7 @@
 
 
 
-{% include "home/classForm.html" with submitButtonId="startAttendance" formId="attendanceForm" submitButtonText="Start Attendance" %}
+{% include "home/classForm.html" with submitButtonId="startAttendance" formId="attendanceForm" submitButtonText="Start Attendance" ipwebcamInputName="ipwebcamUrl" ipwebcamInputId="ipwebcamUrl" ipwebcamSubmitButtonId="ipwebcamcapture" ipwebcamSubmitButtonText="Start Attendance Using IP WebCam" ipButton="True" %}
 
 <script type="text/javascript">
 $body = $("body");
@@ -24,7 +24,7 @@ function startCapturing(){
      type: "POST",
      data: fd,
      success:function(data){
-       window.open('/webcamtest/','_self')
+       window.open('/webcamcapture/','_self')
      },
      error: function (xhr, ajaxOptions, thrownError) {
        alert("errrr")
@@ -38,9 +38,31 @@ function startCapturing(){
 
 }
 
+
+function ipcamstartCapturing(){
+
+     var fd = new FormData(document.querySelector("#attendanceForm"));
+     var url=$("#ipwebcamUrl").val()
+     $.ajax({
+     url:url,
+     data: {},
+     complete: function(xhr, statusText){
+           alert(xhr.status)
+
+       }
+    });
+
+
+}
+
+
  $("#startAttendance").click(function(){
                 startCapturing();
              });
+
+  $("#ipwebcamcapture").click(function(){
+      ipcamstartCapturing();
+  });
 
 
  </script>

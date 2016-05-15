@@ -32,7 +32,15 @@
                     <span class="help-block"></span>
                 </div>
             </form>
+              <div class="form-group">
+                 <button  class=" btn btn-success" id="{{submitButtonId}}">{{submitButtonText}}</button>
+              </div>
 
-              <button  class="btn btn-success" id="{{submitButtonId}}">{{submitButtonText}}</button>
-              <div class="modal"><!-- Place at bottom of page --></div>
+              {% if ipButton %}
+               <div class="form-group">
+                 <input id="{{ipwebcamInputId}}" class="form-control" name="{{ipwebcamInputName}}" type="text" placeholder="IP Webcam Hosting Url (http://10.42.0.41:8080/video)">
+               </div>
+               <button  class="btn btn-success" id="{{ipwebcamSubmitButtonId}}">{{ipwebcamSubmitButtonText}}</button>
+              {% endif %}
+
         </div>
