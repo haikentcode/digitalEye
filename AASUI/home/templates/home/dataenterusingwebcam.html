@@ -13,14 +13,9 @@
 
    <div class="row">
 			 <div class="col-md-3">
-				 <p class="text-primary">Branch : {{bcb.0}}</p>
+				 <p class="text-primary">Roll Number : {{rollNumber}}</p>
 			 </div>
-			 <div class="col-md-3">
-				 <p class="text-primary">Course : {{bcb.1}}</p>
-			 </div>
-			 <div class="col-md-3">
-				 <p class="text-primary">Batch : {{bcb.2}}</p>
-			 </div>
+			 
 			 <div class="col-md-3">
 				  <a class="btn btn-primary" href="/help/" role="button">Change</a>
 			 </div>
@@ -90,10 +85,8 @@
 
 
 	$("#done").click(function(){
-
-		$.get( "/done/", function( data ) {alert(data);});
-
-				});
+      alert("done")
+	});
 
    var hk=true;
    function stop_snapshot() {
@@ -111,7 +104,7 @@
 			Webcam.snap( function(data_uri) {
 				document.getElementById('results').innerHTML =
 					'<img src="'+data_uri+'" class="img-responsive" alt="" />';
-           Webcam.upload( data_uri, "/webcamimage/",function(code, text) {
+           Webcam.upload( data_uri, "/webcamdataenterimage/",function(code, text) {
               if(hk){
 								 t=setTimeout(take_snapshot,1000);
 							}

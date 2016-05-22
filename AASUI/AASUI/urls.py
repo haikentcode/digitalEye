@@ -35,4 +35,11 @@ urlpatterns = [
     url(r'^profile/$',views.profile,name="profile"),
     url(r'^ipwebcamcapture/$',views.ipwebcamcapture,name="ipwebcamcapture"),
     url(r'^ipcamimage/$',views.ipcamimage,name="ipcamimage"),
+    #paras
+    url(r'^dataenter/$',views.dataenter,name="dataenter"),
+    url(r'^startentering/$',views.startentering,name="startentering"),
+    url(r'^dataenterusingwebcam/$',views.dataenterusingwebcam,name="dataenterusingwebcam"),
+    url(r'^dataenterusingipwebcam/$',views.dataenterusingipwebcam,name="dataenterusingipwebcam"),
+    url(r'^webcamdataenterimage/$',views.webcamdataenterimage,name="webcamdataenterimage"),
+    url(r'^ipcamdataenterimage/$',views.ipcamdataenterimage,name="ipcamdataenterimage"),
 ]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

@@ -84,12 +84,17 @@ def getimageslables(course,branch,batch):
             lables=[]
             for student in students:
                 for image in student.imagedata_set.all():
-                    lables.append(int(student.rollNumber))
+
                     img='media/%s' % image
                     img=cv2.imread(img)
-                    img=cv2.resize(img,(600,600),interpolation=cv2.INTER_AREA)
-                    img=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
-                    images.append(img)
+                    if not img==None:
+                       img=cv2.resize(img,(600,600),interpolation=cv2.INTER_AREA)
+                       img=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+                       images.append(img)
+                       lables.append(int(student.rollNumber))
+                    else:
+                        print "image not found ",student.rollNumber,image
+
             return images ,lables
 
 
@@ -239,7 +244,6 @@ def mupload(request):
     return HttpResponse("done")
 
 
-
 def domore(request):
     if request.session.get('teacher',None):
         teacher=onTeacher(request)
@@ -247,9 +251,6 @@ def domore(request):
     else:
 
        return HttpResponseRedirect('/login')
-
-
-
 
 
 def webcamcapture(request):
@@ -310,13 +311,22 @@ def webcamimage(request):
 
 
 #take image obj as argument and predict the faces lable
+resultOutput={}
 def imagePridictor(image):
+     global resultOutput
      output=getpredictLable(ef,image)
-     if len(output)>0:
-           txt="%s"%output
-           l=Log()
-           l.text=txt
-           l.save()
+     threshold=13000
+     if output:
+       for  x in output: #x=(rollNumber,mfactor)
+            if x[1]<threshold:
+                 if resultOutput.get(str(x[0]),None):
+                       resultOutput[str(x[0])].append(x[1])
+                 else:
+                       resultOutput[str(x[0])]=[x[1]]
+       txt="%s"%output
+       l=Log()
+       l.text=txt
+       l.save()
      print output
 
 
@@ -329,8 +339,9 @@ def ipwebcamcapture(request):
            return HttpResponseRedirect('/home')
 
 #--------------------------------------------------------#
-def HAdecisionAlgorithm(listPridictdata):
-      print "I will come soon"
+def HAdecisionAlgorithm(pridictdata):
+
+      return [12103024]
 
 
 def profile(request):
@@ -341,4 +352,91 @@ def profile(request):
         return HttpResponseRedirect('/home')
 
 def done(request):
-    pass
+    if resultOutput:
+       print "final Result=",resultOutput
+       finalStudentList=HAdecisionAlgorithm(pridictdata)
+
+    else:
+       print "contact to haikent"
+    return HttpResponse("done")
+
+
+
+#---------------------------------------- paras ---------------------------------#
+def dataenter(request):
+    teacher=onTeacher(request)
+    if teacher:
+        return render(request,'home/dataenter.html',{'user':teacher})
+    else:
+        return render(request,'home/login.html',{"error":error})
+
+def startentering(request):
+    error=""
+    if request.POST:
+       data=request.POST
+       rollNumber=data.get('rollNumber')
+       ipwebcamurl=data.get("ipwebcamurl")
+       request.session['dataenterRollNumber']=rollNumber
+       request.session['dataenteripwebcamurl']=ipwebcamurl
+       return HttpResponse("done")
+    return HttpResponse(status=410)
+
+def dataenterusingwebcam(request):
+    rollNumber=request.session.get('dataenterRollNumber')
+
+    return render(request,'home/dataenterusingwebcam.html',{"rollNumber":rollNumber})
+
+def dataenterusingipwebcam(request):
+    rollNumber=request.session.get('dataenterRollNumber')
+    ipwebcamurl=request.session.get('dataenteripwebcamurl')
+    return render(request,'home/dataenterusingipwebcam.html',{"rollNumber":rollNumber,"ipwebcamurl":ipwebcamurl})
+
+@csrf_exempt
+def webcamdataenterimage(request):
+       print "started webcamdataenterimage"
+       rollNumber=request.session.get('dataenterRollNumber')
+       if request.FILES:
+           image=request.FILES.get('webcam')
+           image=get_uploaded_image(image,rollNumber)
+           print "calling findFaceAndStore"
+           findFaceAndStore(image,rollNumber)
+           return HttpResponse("done")
+
+def getStudent(rollNumber):
+    return Student.objects.get(rollNumber=rollNumber)
+
+def findFaceAndStore(image,rollNumber):
+    face=obj.Face(1.6,5,20,20)
+    faces=face.getFaces(image)
+    print "No of faces found",len(faces)
+    for f in faces:
+           simg=cv2.cvtColor(f,cv2.COLOR_BGR2GRAY)
+           simg=cv2.resize(simg,(600,600),interpolation=cv2.INTER_AREA)
+           obj1=getStudent(rollNumber)
+           pImage=saveImageObject(simg,rollNumber)
+           obj2=ImageData(student=obj1,image=pImage)
+           obj2.save()
+
+def saveImageObject(image,rollNumber):
+  ps=str(int(time.time()))+".jpg"
+  imageName=str(rollNumber)+ps
+  imagePath="media/media/"+imageName
+  imagePath2="media/"+imageName
+  print imagePath
+  cv2.imwrite(imagePath,image)
+  return imagePath2
+
+
+@csrf_exempt
+def ipcamdataenterimage(request):
+    print "started ipcamdataenterimage"
+    rollNumber=request.session.get('dataenterRollNumber')
+    ipwebcamurl=request.session.get('dataenteripwebcamurl')
+    if ipwebcamurl:
+        cap=cv2.VideoCapture(ipwebcamurl)
+        ret,frame=cap.read()
+        if ret:
+            findFaceAndStore(frame,rollNumber)
+            return HttpResponse("done")
+    return HttpResponse("error")
+#-----------------------------------------------------------------------#

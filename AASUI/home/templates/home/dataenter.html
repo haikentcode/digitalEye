@@ -1,0 +1,58 @@
+{% extends 'home/main.html' %}
+
+
+{% block content %}
+
+
+
+
+<form id="dataenter">
+{% csrf_token %}	
+<div class="form-group">
+     <input id="rollNumber" class="form-control" name="rollNumber" type="text" placeholder="Enter the roll number">
+               </div>
+<div class="form-group">
+     <input id="ipwebcamurl" class="form-control" name="ipwebcamurl" type="text" placeholder="IP Webcam Hosting Url (http://10.42.0.41:8080/video)">
+</div>
+
+</form>
+<button  class="btn btn-success" id="usingwebcam" onclick="startusingwebcam()">Start using WebCam</button>
+<button  class="btn btn-success" id="usingipcam" onclick="startusingipwebcam()">Start using Ip</button>
+
+<script>
+function startusingwebcam(){
+
+     var fd = new FormData(document.querySelector("#dataenter"));
+     fd.append("author", "haikent");
+     ajaxSend(fd,"/startentering/",'/dataenterusingwebcam/')
+}
+
+function ajaxSend(fd,url,rurl){
+
+  $.ajax({
+  url:url,
+  type: "POST",
+  data: fd,
+  success:function(data){
+    window.open(rurl,'_self')
+  },
+  error: function (xhr, ajaxOptions, thrownError) {
+    alert("errrr")
+     alert(xhr.status);
+     alert(thrownError);
+     alert(ajaxOptions);
+   },
+  processData: false,  // tell jQuery not to process the data
+  contentType: false   // tell jQuery not to set contentType
+  });
+
+}
+
+function startusingipwebcam(){
+     var fd = new FormData(document.querySelector("#dataenter"));
+     ajaxSend(fd,"/startentering/",'/dataenterusingipwebcam/');
+}
+
+</script>
+
+{% endblock %}
