@@ -1,0 +1,8 @@
+{% extends 'home/main.html' %}
+
+
+{% block content %}
+
+{% include "home/classForm.html" with submitButtonId="downloadAttendance" formId="viewAttendanceform" submitButtonText="Download Attendance" directpost="True" directposturl="/download/" %}
+
+{% endblock %}

@@ -2,7 +2,6 @@ from django.shortcuts import render,HttpResponse,render_to_response,HttpResponse
 from django.contrib import auth
 from home.models import  Teacher , Attendance , Student ,Log ,ImageData
 from django.contrib.auth.decorators import login_required
-
 from digitalEye import Objects as obj
 from digitalEye import Recog as rec
 import sys
@@ -12,8 +11,7 @@ import datetime
 import time
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-
-
+import xlsxwriter
 
 __location__ = os.path.realpath(
     os.path.join(os.getcwd(), os.path.dirname(__file__)))
@@ -42,6 +40,14 @@ def index(request):
 
 
 
+def isLogin(func):
+      def newFunc(request):
+          if onTeacher(request) == None :
+                  return HttpResponseRedirect("/login/")
+          else:
+             return func(request)
+      return newFunc
+
 def login(request):
     error=""
     if request.POST:
@@ -63,19 +69,20 @@ def login(request):
     return render(request,'home/login.html',{"error":error})
 
 
+@isLogin
 def logout(request):
       del request.session['teacher']
       return HttpResponseRedirect('/home')
 
 
+@isLogin
 def help(request):
       teacher = onTeacher(request)
       return render(request,'home/help.html',{'user':teacher})
 
 
-
+@isLogin
 def history(request,year=0,month=0,day=0):
-
     teacher=onTeacher(request)
     attendanceList=Attendance.objects.filter(teacher=teacher)
     return render(request,'home/history.html',{'attendanceList':attendanceList,'user':teacher})
@@ -176,6 +183,7 @@ def getBranchCourseBatch(request):
 r1=None  #LBPH train object
 r2=None  #fisherfaces train object
 r3=None  #eigenfaces  train object
+@isLogin
 def TESTstartcapturing(request):
       global r1,r2,r3
       print "come1"
@@ -214,7 +222,6 @@ def startcapturing(request):
           else:
               print "ef not created ef=",ef
               return HttpResponse(status=410)
-
       else:
           return HttpResponse("failed")
 
@@ -228,37 +235,36 @@ def handle_uploaded_file(f,name):
     return imagePath
 
 
+@login_required(login_url='/admin/login/')
 def mupload(request):
-    images=request.FILES.getlist('file')
-    i=0
-    for image in images:
-          print i
-          i+=1
-          imagePath=handle_uploaded_file(image,image.name)
-          rollNumber=image.name.split(".")[0]  # demo 12103074.9 -> 12103074
-          imgd=ImageData()
-          imgd.image=imagePath
-          student=getStudent(rollNumber)
-          if student :
-              imgd.student = student
-              imgd.save()
-          else:
-             print "error rollNumber:",rollNumber
-    return HttpResponse("done")
+    if request.FILES:
+            images=request.FILES.getlist('file')
+            i=0
+            for image in images:
+                  print i
+                  i+=1
+                  imagePath=handle_uploaded_file(image,image.name)
+                  rollNumber=image.name.split(".")[0]  # demo 12103074.9 -> 12103074
+                  imgd=ImageData()
+                  imgd.image=imagePath
+                  student=getStudent(rollNumber)
+                  if student :
+                      imgd.student = student
+                      imgd.save()
+                  else:
+                     print "error rollNumber:",rollNumber
+            return HttpResponse("done")
+    HttpResponse("hai hacker :p , haikent ")
 
 
-
+@isLogin
 def webcamcapture(request):
-        if request.session.get('teacher',None):
             teacher=onTeacher(request)
             bcb = getBranchCourseBatch(request)
             if not all(bcb):
                  print "bcb not found:",getBranchCourseBatch(request)
                  return HttpResponseRedirect("/home/")
             return render(request,'home/webcamcapture.html',{'user':teacher,'bcb':bcb})
-        else:
-           return HttpResponseRedirect('/login')
-
 
 
 
@@ -287,6 +293,8 @@ def ipcamimage(request):
         if ret:
             imagePridictor(frame)
             return HttpResponse("done")
+    else:
+           return HttpResponse("error")
 
 
 # take image frop webcam and then predict the faces
@@ -325,10 +333,11 @@ def imagePridictor(image):
      print output
 
 
+@isLogin
 def ipwebcamcapture(request):
       teacher=onTeacher(request)
       ipwebcamurl=request.session.get('ipwebcamurl')
-      if ipwebcamurl and teacher:
+      if ipwebcamurl:
            return render(request,'home/ipwebcamcapture.html',{'user':teacher,'ipwebcamurl':ipwebcamurl})
       else:
            return HttpResponseRedirect('/home')
@@ -339,23 +348,60 @@ def HAdecisionAlgorithm(pridictdata):
       return [12103024]
 
 
+@isLogin
 def profile(request):
     teacher=onTeacher(request)
-    if teacher:
-        return render(request,'home/profile.html',{'user':teacher})
-    else:
-        return HttpResponseRedirect('/home')
+    return render(request,'home/profile.html',{'user':teacher})
 
 def done(request):
     if resultOutput:
        print "final Result=",resultOutput
        finalStudentList=HAdecisionAlgorithm(pridictdata)
-
     else:
        print "contact to haikent"
     return HttpResponse("done")
+#-----------------------------ashok ---------------------------#
 
+@isLogin
+def download(request):
+       if request.POST:
+           branch=request.POST.get('branch')
+           course=request.POST.get('course')
+           batch=request.POST.get('batch')
+           teacher=onTeacher(request)
+           attendanceList=Attendance.objects.filter(students__branch__iexact=branch,students__course__iexact=course,students__batch__iexact=batch,teacher=teacher).order_by('date')
+           filename=course+batch+branch
+           workbook = xlsxwriter.Workbook('media/'+filename+'.xlsx')
+           worksheet = workbook.add_worksheet()
+           studentlist=Student.objects.filter(branch__iexact=branch,batch__iexact=batch,course__iexact=course)
+           worksheet.write(0,0,"Roll Number")
+           i=1
+           attendancelistdict={}
+           for student_roll_number_object in studentlist:
+              attendancelistdict[student_roll_number_object.rollNumber]="A"
+              worksheet.write(i,0,student_roll_number_object.rollNumber)
+              i=i+1
+           j=1
+           for x in attendanceList:
+               y=x.students.all()
+               i=0
+               datestring=x.date.strftime("%Y/%m/%d")
+               worksheet.write(i,j,datestring)
+               for RollNumber in y:
+                  attendancelistdict[RollNumber.rollNumber]="P"
+               for student_object in studentlist:
+                  i=i+1
+                  worksheet.write(i,j,attendancelistdict[student_object.rollNumber])
 
+               for student_object in studentlist:
+                  attendancelistdict[RollNumber.rollNumber]="A"
+               j=j+1
+           workbook.close()
+           response='/media/'+filename+'.xlsx'
+           return HttpResponseRedirect(response)
+       else:
+         teacher=onTeacher(request)
+         return render(request,'home/download.html',{'user':teacher,'range':range(2010,2222)})
 
 #---------------------------------------- paras ---------------------------------#
 
@@ -387,7 +433,8 @@ def dataenterusingwebcam(request):
 def dataenterusingipwebcam(request):
     rollNumber=request.session.get('dataenterRollNumber')
     ipwebcamurl=request.session.get('dataenteripwebcamurl')
-    return render(request,'home/dataenterusingipwebcam.html',{"rollNumber":rollNumber,"ipwebcamurl":ipwebcamurl,user:'user'})
+    user={}
+    return render(request,'home/dataenterusingipwebcam.html',{"rollNumber":rollNumber,"ipwebcamurl":ipwebcamurl,"user":user})
 
 
 @csrf_exempt

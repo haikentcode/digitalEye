@@ -31,10 +31,15 @@
                     </select>
                     <span class="help-block"></span>
                 </div>
+                {% if directpost %}
+                 <button  class=" btn btn-success" id="{{submitButtonId}}">{{submitButtonText}}</button>
+                {% endif %}
             </form>
+            {% if not directpost %}
               <div class="form-group">
                  <button  class=" btn btn-success" id="{{submitButtonId}}">{{submitButtonText}}</button>
               </div>
+            {% endif %}
 
               {% if ipButton %}
                <div class="form-group">

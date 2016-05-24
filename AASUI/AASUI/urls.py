@@ -52,4 +52,8 @@ urlpatterns = [
     url(r'^admin/login/$', auth_views.login),
     url(r'^admin/logout/$',view=logout,kwargs={'next_page': '/'},name='adminlogout'),
     url(r'^admin/help$',views.adminhelp,name="adminhelp"),
+
+    #ashok download
+    url(r'^download/$',views.download,name='downlaod'),
+
 ]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)
