@@ -1,0 +1,24 @@
+
+<!---- For display popup window ------->
+
+  <{{buttonType}} style="cursor:pointer" class="{{buttonClass}}" data-toggle="modal" data-target="#model{{modelId}}" >{{buttonText}}</{{buttonType}}>
+  <!-- Modal -->
+  <div class="modal fade" id="model{{modelId}}" role="dialog">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">{{heading}}</h4>
+        </div>
+        <div class="modal-body">
+          {% for x in modelText %}
+             <p>{{x}}</p>
+          {% endfor %}
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>

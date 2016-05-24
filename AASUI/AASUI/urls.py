@@ -18,6 +18,11 @@ from django.contrib import admin
 from django.conf.urls.static import static
 from django.conf import settings
 from home import views
+from django.contrib.auth import views as auth_views
+from django.contrib.auth.views import login
+from django.contrib.auth.views import logout
+
+
 urlpatterns = [
     url(r'^digitalEyeAdmin/', admin.site.urls),
     url(r'^$',views.rhome,name="rhome"),
@@ -25,7 +30,7 @@ urlpatterns = [
     url(r'^login',views.login,name="login"),
     url(r'^logout',views.logout,name="logout"),
     url(r'^help',views.help,name="help"),
-    url(r'^domore',views.domore,name='domore'),
+    url(r'^admin/domore',views.domore,name='domore'),
     url(r'^mupload',views.mupload,name='mupload'),
     url(r'^history/$',views.history,name="history"),
     url(r'^webcamcapture/$',views.webcamcapture,name="webcamcapture"),
@@ -36,10 +41,15 @@ urlpatterns = [
     url(r'^ipwebcamcapture/$',views.ipwebcamcapture,name="ipwebcamcapture"),
     url(r'^ipcamimage/$',views.ipcamimage,name="ipcamimage"),
     #paras
-    url(r'^dataenter/$',views.dataenter,name="dataenter"),
+    url(r'^admin/dataenter/$',views.dataenter,name="dataenter"),
     url(r'^startentering/$',views.startentering,name="startentering"),
-    url(r'^dataenterusingwebcam/$',views.dataenterusingwebcam,name="dataenterusingwebcam"),
-    url(r'^dataenterusingipwebcam/$',views.dataenterusingipwebcam,name="dataenterusingipwebcam"),
+    url(r'^admin/dataenter/dataenterusingwebcam/$',views.dataenterusingwebcam,name="dataenterusingwebcam"),
+    url(r'^admin/dataenter/dataenterusingipwebcam/$',views.dataenterusingipwebcam,name="dataenterusingipwebcam"),
     url(r'^webcamdataenterimage/$',views.webcamdataenterimage,name="webcamdataenterimage"),
     url(r'^ipcamdataenterimage/$',views.ipcamdataenterimage,name="ipcamdataenterimage"),
+    #auth
+    url(r'^admin/$',views.admin,name="admin"),
+    url(r'^admin/login/$', auth_views.login),
+    url(r'^admin/logout/$',view=logout,kwargs={'next_page': '/'},name='adminlogout'),
+    url(r'^admin/help$',views.adminhelp,name="adminhelp"),
 ]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

@@ -10,8 +10,12 @@
          <span class="label label-success">{{attendance.students.all.0.branch}}</span>
          <span class="label label-success">{{attendance.students.all.0.batch}}</span>
          <span class="label label-success"> {{attendance.students.all.0.course}}</span>
-         <span class="badge">Presents {{attendance.students.count}}</span>
+         <span class="badge"></span>
+         {% include "home/model.html" with  buttonType="span" buttonClass="badge" buttonText=attendance.students.count modelId=forloop.counter heading=attendance.date modelText=attendance.students.all  %}
     </li>
      {% endfor %}
   </ul>
+
+
+
 {% endblock %}

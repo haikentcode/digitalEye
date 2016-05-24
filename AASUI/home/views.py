@@ -1,6 +1,7 @@
 from django.shortcuts import render,HttpResponse,render_to_response,HttpResponseRedirect
 from django.contrib import auth
 from home.models import  Teacher , Attendance , Student ,Log ,ImageData
+from django.contrib.auth.decorators import login_required
 
 from digitalEye import Objects as obj
 from digitalEye import Recog as rec
@@ -10,6 +11,8 @@ import os
 import datetime
 import time
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+
 
 
 __location__ = os.path.realpath(
@@ -244,14 +247,6 @@ def mupload(request):
     return HttpResponse("done")
 
 
-def domore(request):
-    if request.session.get('teacher',None):
-        teacher=onTeacher(request)
-        return render(request,'home/domore.html',{'user': teacher})
-    else:
-
-       return HttpResponseRedirect('/login')
-
 
 def webcamcapture(request):
         if request.session.get('teacher',None):
@@ -363,13 +358,13 @@ def done(request):
 
 
 #---------------------------------------- paras ---------------------------------#
-def dataenter(request):
-    teacher=onTeacher(request)
-    if teacher:
-        return render(request,'home/dataenter.html',{'user':teacher})
-    else:
-        return render(request,'home/login.html',{"error":error})
 
+@login_required(login_url='/admin/login/')
+def dataenter(request):
+        return render(request,'home/dataenter.html')
+
+
+@login_required(login_url='/admin/login/')
 def startentering(request):
     error=""
     if request.POST:
@@ -381,17 +376,22 @@ def startentering(request):
        return HttpResponse("done")
     return HttpResponse(status=410)
 
+
+@login_required(login_url='/admin/login/')
 def dataenterusingwebcam(request):
     rollNumber=request.session.get('dataenterRollNumber')
+    user={}
+    return render(request,'home/dataenterusingwebcam.html',{"rollNumber":rollNumber,'user':user})
 
-    return render(request,'home/dataenterusingwebcam.html',{"rollNumber":rollNumber})
-
+@login_required(login_url='/admin/login/')
 def dataenterusingipwebcam(request):
     rollNumber=request.session.get('dataenterRollNumber')
     ipwebcamurl=request.session.get('dataenteripwebcamurl')
-    return render(request,'home/dataenterusingipwebcam.html',{"rollNumber":rollNumber,"ipwebcamurl":ipwebcamurl})
+    return render(request,'home/dataenterusingipwebcam.html',{"rollNumber":rollNumber,"ipwebcamurl":ipwebcamurl,user:'user'})
+
 
 @csrf_exempt
+@login_required(login_url='/admin/login/')
 def webcamdataenterimage(request):
        print "started webcamdataenterimage"
        rollNumber=request.session.get('dataenterRollNumber')
@@ -402,8 +402,11 @@ def webcamdataenterimage(request):
            findFaceAndStore(image,rollNumber)
            return HttpResponse("done")
 
+
+
 def getStudent(rollNumber):
     return Student.objects.get(rollNumber=rollNumber)
+
 
 def findFaceAndStore(image,rollNumber):
     face=obj.Face(1.6,5,20,20)
@@ -417,6 +420,7 @@ def findFaceAndStore(image,rollNumber):
            obj2=ImageData(student=obj1,image=pImage)
            obj2.save()
 
+
 def saveImageObject(image,rollNumber):
   ps=str(int(time.time()))+".jpg"
   imageName=str(rollNumber)+ps
@@ -426,8 +430,8 @@ def saveImageObject(image,rollNumber):
   cv2.imwrite(imagePath,image)
   return imagePath2
 
-
 @csrf_exempt
+@login_required(login_url='/admin/login/')
 def ipcamdataenterimage(request):
     print "started ipcamdataenterimage"
     rollNumber=request.session.get('dataenterRollNumber')
@@ -440,3 +444,22 @@ def ipcamdataenterimage(request):
             return HttpResponse("done")
     return HttpResponse("error")
 #-----------------------------------------------------------------------#
+
+
+
+#-----Admin -------------#
+@login_required(login_url='/admin/login/')
+def adminhelp(request):
+     user={}
+     return  render(request,'home/adminhelp.html',{'user':user})
+
+@login_required(login_url='/admin/login/')
+def admin(request):
+     user={}
+     return  render(request,'home/admin.html',{'user':user})
+
+
+@login_required(login_url='/admin/login/')
+def domore(request):
+     user={}
+     return render(request,'home/domore.html',{'user':user})

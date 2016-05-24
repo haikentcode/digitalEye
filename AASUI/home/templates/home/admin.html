@@ -19,7 +19,7 @@
 			<div class="profile-sidebar">
 				<!-- SIDEBAR USERPIC -->
 				<div class="profile-userpic">
-					<img src="/media/{{user.image}}" class="img-responsive" alt="">
+					<img src="/media/admin.gif" class="img-responsive" alt="">
 				</div>
 				<!-- END SIDEBAR USERPIC -->
 				<!-- SIDEBAR USER TITLE -->
@@ -34,31 +34,35 @@
 				<!-- END SIDEBAR USER TITLE -->
 				<!-- SIDEBAR BUTTONS -->
 				<div class="profile-userbuttons">
-					<button onclick="window.location.href='/profile'" type="button" class="btn btn-success btn-sm">Profile</button>
-					<button onclick="window.location.href='/logout'" type="button" class="btn btn-danger btn-sm">logout</button>
+					<button onclick="window.location.href='/admin/logout'" type="button" class="btn btn-danger btn-sm">logout</button>
 				</div>
 				<!-- END SIDEBAR BUTTONS -->
 				<!-- SIDEBAR MENU -->
 				<div class="profile-usermenu">
 					<ul class="nav">
 						<li class="active">
-							<a href="/home">
+							<a href="/admin/domore">
 							<i class="glyphicon glyphicon-home"></i>
-							Home </a>
+							 Upload Multiple Images</a>
 						</li>
 						<li>
-							<a href="/history">
+							<a href="/admin/dataenter">
 							<i class="glyphicon glyphicon-list-alt"></i>
-							history </a>
+						    Capture And Update Images</a>
 						</li>
 
             <li>
-							<a href="/admin">
+							<a href="/home">
 							<i class="glyphicon glyphicon-briefcase"></i>
-							Admin </a>
+							Home </a>
+						</li>
+            <li>
+							<a href="/digitalEyeAdmin">
+							<i class="glyphicon glyphicon-briefcase"></i>
+							Data Base Admin </a>
 						</li>
 						<li>
-							<a href="/help">
+							<a href="/admin/help">
 							<i class="glyphicon glyphicon-flag"></i>
 							Help </a>
 						</li>

@@ -1,4 +1,5 @@
-{% extends 'home/main.html' %}
+{% extends 'home/admin.html' %}
+
 
 
 {% block content %}
@@ -7,7 +8,7 @@
 
 
 <form id="dataenter">
-{% csrf_token %}	
+{% csrf_token %}
 <div class="form-group">
      <input id="rollNumber" class="form-control" name="rollNumber" type="text" placeholder="Enter the roll number">
                </div>
@@ -24,7 +25,7 @@ function startusingwebcam(){
 
      var fd = new FormData(document.querySelector("#dataenter"));
      fd.append("author", "haikent");
-     ajaxSend(fd,"/startentering/",'/dataenterusingwebcam/')
+     ajaxSend(fd,"/startentering/",'/admin/dataenter/dataenterusingwebcam/')
 }
 
 function ajaxSend(fd,url,rurl){
@@ -50,7 +51,7 @@ function ajaxSend(fd,url,rurl){
 
 function startusingipwebcam(){
      var fd = new FormData(document.querySelector("#dataenter"));
-     ajaxSend(fd,"/startentering/",'/dataenterusingipwebcam/');
+     ajaxSend(fd,"/startentering/",'/admin/dataenter/dataenterusingipwebcam/');
 }
 
 </script>

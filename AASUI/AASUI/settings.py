@@ -40,7 +40,6 @@ INSTALLED_APPS = [
     'home',
     'bootstrap3', # pip install django-bootstrap3
     'widget_tweaks' #froms feild modification pip install django-widget-tweaks
-
 ]
 
 MIDDLEWARE_CLASSES = [
