@@ -293,6 +293,9 @@ def ipcamimage(request):
         if ret:
             imagePridictor(frame)
             return HttpResponse("done")
+        else:
+           print "image not capture using ip cam"
+           return HttpResponse("error")
     else:
            return HttpResponse("error")
 
@@ -315,8 +318,10 @@ def webcamimage(request):
 
 #take image obj as argument and predict the faces lable
 resultOutput={}
+threshold=None
 def imagePridictor(image):
      global resultOutput
+     global threshold
      output=getpredictLable(ef,image)
      threshold=13000
      if output:
@@ -344,9 +349,24 @@ def ipwebcamcapture(request):
 
 #--------------------------------------------------------#
 def HAdecisionAlgorithm(pridictdata):
+    global threshold
+    finalresult=[]
+    for rn,rl in pridictdata.items():
+            avg=sum(rl)/len(rl)
+            print avg
+            if avg < (threshold*0.75):
+                finalresult.append(rn)
+    return finalresult
 
-      return [12103024]
 
+def makePresent(request,students):
+      teacher=onTeacher(request)
+      attendance=Attendance(teacher=teacher)
+      attendance.save()
+      for student in students:
+          print "comer here"
+          attendance.students.add(getStudent(student))
+      attendance.save()
 
 @isLogin
 def profile(request):
@@ -356,7 +376,8 @@ def profile(request):
 def done(request):
     if resultOutput:
        print "final Result=",resultOutput
-       finalStudentList=HAdecisionAlgorithm(pridictdata)
+       finalStudentList=HAdecisionAlgorithm(resultOutput)
+       makePresent(request,finalStudentList)
     else:
        print "contact to haikent"
     return HttpResponse("done")

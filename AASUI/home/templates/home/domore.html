@@ -4,10 +4,21 @@
 {% block content %}
 
 
-<div class="container">
+
+   <div class="bs-calltoaction bs-calltoaction-success">
+          <div class="row text text-capitalize">
+
+              <h1>Upload Face Images For Student</h1>
+              <ol>
+                <li>all image are croped by face and Gray formate</li>
+                <li>lable of image like RollNumber.localUniqueNumber
+                   #eg 12103023.12 12103024.32 12103024.323</li>
+                <li>And Student Exists in database which image are you upload</li>
+              </ol>
+          </div>
+  </div>
+
   <div class="row">
-   <h1>Upload multiple images of student face</h1>
-   <p>image lable like rollNumber.anyrandomeuniqNumber eg# 12103024.13132 </p>
    <div class="row">
       <form id="hkform">
           {% csrf_token %}

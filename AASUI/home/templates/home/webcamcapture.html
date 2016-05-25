@@ -7,10 +7,6 @@
 
 	</style>
 
-
-
-
-
    <div class="row">
 			 <div class="col-md-3">
 				 <p class="text-primary">Branch : {{bcb.0}}</p>
@@ -91,8 +87,11 @@
 
 	$("#done").click(function(){
 
-		$.get( "/done/", function( data ) {alert(data);});
-
+		$.get( "/done/", function( data ) {
+			alert(data);
+			window.open('/','_self')
+		});
+		
 				});
 
    var hk=true;
