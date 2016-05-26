@@ -64,10 +64,11 @@
 <script>
 $("#done").click(function(){
 
-  $.get( "/done/", function( data ) {alert(data);});
+  $.get( "/done/", function( data ) {
+    alert(data);
+    window.open('/','_self')
+  });
 
-      });
-      
 var hk=true;
 function stop_snapshot() {
  hk=false;

@@ -84,7 +84,7 @@ def help(request):
 @isLogin
 def history(request,year=0,month=0,day=0):
     teacher=onTeacher(request)
-    attendanceList=Attendance.objects.filter(teacher=teacher)
+    attendanceList=Attendance.objects.filter(teacher=teacher).order_by('-time')
     return render(request,'home/history.html',{'attendanceList':attendanceList,'user':teacher})
 
 
